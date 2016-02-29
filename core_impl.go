@@ -21,8 +21,8 @@ var(
 func newSessionGetter(store sessions.Store, sessionName string, maxRecentSheetCount int, recentSheetAccessExpiration time.Duration) SessionGetter {
 	if !typesGobRegistered {
 		gob.Register(map[string]*recentSheetAccess{})
-		gob.Register(&recentSheetAccess{})
-		gob.Register(&time.Now())
+		gob.Register(recentSheetAccess{})
+		gob.Register(time.Now())
 		typesGobRegistered = true
 	}
 	return func(w http.ResponseWriter, r *http.Request) (Session, error) {
@@ -58,8 +58,10 @@ func (s *session) SetUser(id string) error {
 func (s *session) User() (string, error) {
 	if id, exists := s.s.Values[user]; !exists {
 		return "", errors.New("No user property in session")
+	} else if idStr, ok := id.(string); !ok {
+		return "", errors.New("User property was of unexpected type")
 	} else {
-		return id, nil
+		return idStr, nil
 	}
 }
 
@@ -114,8 +116,10 @@ func (s *session) SetCsrfToken(token string) error {
 func (s *session) CsrfToken() (string, error) {
 	if token, exists := s.s.Values[csrfToken]; !exists {
 		return "", errors.New("No csrfToken property in session")
+	} else if tokenStr, ok := token.(string); !ok {
+		return "", errors.New("CsrfToken property of unexpected type")
 	} else {
-		return token, nil
+		return tokenStr, nil
 	}
 }
 
