@@ -75,7 +75,7 @@ func (s *session) SetAccessedSheet(sheet string, baseUrn string) error {
 		}
 		return s.s.Save(s.r, s.w)
 	} else if ras, ok := i.(map[string]*recentSheetAccess); !ok {
-		return errors.New("recentlyAccessSheets property was of unexpected type")
+		return errors.New("recentlyAccessedSheets property was of unexpected type")
 	} else {
 		if len(ras) >= s.maxRecentSheetCount {
 			oldestSheetId := ""
@@ -100,8 +100,8 @@ func (s *session) GetSheetBaseUrn(sheet string) (string, error) {
 	if i, exists := s.s.Values[recentlyAccessedSheets]; !exists {
 		return "", errors.New("sheet not recently accessed")
 	} else if ras, ok := i.(map[string]*recentSheetAccess); !ok {
-		return "", errors.New("recentlyAccessSheets property was of unexpected type")
-	} else if rsa, exists := ras[sheet]; !exists || rsa == nil || rsa.Time.Add(s.recentSheetAccessExpiration).After(time.Now().UTC()) {
+		return "", errors.New("recentlyAccessedSheets property was of unexpected type")
+	} else if rsa, exists := ras[sheet]; !exists || rsa == nil || rsa.Time.Add(s.recentSheetAccessExpiration).Before(time.Now().UTC()) {
 		return "", errors.New("sheet not recently accessed")
 	} else {
 		return rsa.BaseUrn, nil
